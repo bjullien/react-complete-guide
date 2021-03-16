@@ -1,60 +1,66 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Person from './Person/Person'; 
        // Person with Capital P as minor first letters are reserved for HTML elements
 
-class App extends Component {
-  // state is a reserved word, when changed => React re-render!
-  state = {
+/**
+ * In a functional component, there is no "this" to access properties or functions
+ * 
+ * @param {*} props 
+ * @returns 
+ */
+const app = props => {
+
+  /**
+   * Set the initial state using hook: useState()
+   * [ personsState, setPersonsState ] = is using ES6 destructuring feature
+   * [ a, b ] = function returning an array;
+   *  a and b will be assigned automatically
+   */
+  const [ personsState, setPersonsState ] = useState({
     persons: [
       { name: 'Bruno', age: 56 },
       { name: 'Max', age: 50 },
       { name: 'Kabkeo', age: 56 },
-    ],
-    otherState: 'some other value'
-  }
+    ]
+  });
 
   /**
-   * someThingHandler: 
-   *        convention to end with "Handler" when React event is calling it
-   *        "Hollywood principle: do not call us, we will call you"
-   * <button onClick={this.switchNamesHandler}>Switch Names</button>
-   *        do not add(), it would call the function when html is rendered!
-   * this:
-   *        works and represent a App class instance because we use arrow function ()=>{}
-   * 
+   * As with useState hook, there is no merge, we have to create another
+   * state property; then when calling setPersonsState, this one is not 
+   * touched
    */
-  switchNamesHandler = () => {
-    //console.log("was clicked!");
-    
-    //DON'T DO THIS: this.state.persons[0].name = "Bernard"; 
-    //=> ERROR: ./src/App.js
-    //          Line 27:  Do not mutate state directly. Use setState()  react/no-direct-mutation-state
+  const [ otherState, setOtherState ] = useState({
+    otherState: 'some other value'
+  });
 
-    /**
-     * when calling setState(), React updates the DOM
-     * here our changes are merged with existing state (kabkeo and otherState are kept)
-     */
-    this.setState({
+  const switchNamesHandler = () => {
+    // Warning: setPersonsState does not merger like with class component this.setState() 
+    //          here, we will loose Max and otherState
+    // Solution: call useState() several times
+    setPersonsState({
       persons: [
         { name: 'Bernard', age: 56 },
+        { name: 'Max', age: 50 },
         { name: 'Kabkeo', age: 57 },
       ]
     });
   }
 
-  render() {
-    return (
-      <div className="App">
-        <h1>Hi, I am a React App</h1>
-        <button onClick={this.switchNamesHandler}>Switch Names</button>
-        <Person name={this.state.persons[0].name} age={this.state.persons[0].age}>I come from France</Person>
-        <Person name={this.state.persons[1].name} age={this.state.persons[1].age} />
-      </div>
-    );
-  }
+  /**
+   * class comp: onClick={this.switchNamesHandler}
+   * function comp: onClick={switchNamesHandler} as "this" only in a class 
+   */
+  return (
+    <div className="App">
+      <h1>Hi, I am a React App</h1>
+      <button onClick={switchNamesHandler}>Switch Names</button>
+      <Person name={personsState.persons[0].name} age={personsState.persons[0].age}>I come from France</Person>
+      <Person name={personsState.persons[1].name} age={personsState.persons[1].age} />
+    </div>
+  );
 }
-export default App;
+export default app;
 
 /**
  * A React component: 
